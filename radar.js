@@ -89,7 +89,6 @@ function radar_visualization(config) {
     return Math.min(Math.max(value, low), high);
   }
 
-
   function bounded_ring(polar, r_min, r_max) {
     return {
       t: polar.t,
@@ -107,7 +106,7 @@ function radar_visualization(config) {
   function segment(quadrant, ring) {
     var polar_min = {
       t: quadrants[quadrant].radial_min * Math.PI,
-      r: ring == 0 ? 30 : rings[ring - 1].radius
+      r: ring === 0 ? 30 : rings[ring - 1].radius
     };
     var polar_max = {
       t: quadrants[quadrant].radial_max * Math.PI,
@@ -218,6 +217,20 @@ function radar_visualization(config) {
     .style("stroke", config.colors.grid)
     .style("stroke-width", 1);
 
+  // background color. Usage `.attr("filter", "url(#solid)")`
+  // SOURCE: https://stackoverflow.com/a/31013492/2609980
+  var defs = grid.append("defs");
+  var filter = defs.append("filter")
+    .attr("x", 0)
+    .attr("y", 0)
+    .attr("width", 1)
+    .attr("height", 1)
+    .attr("id", "solid");
+  filter.append("feFlood")
+    .attr("flood-color", "rgb(0, 0, 0, 0.8)");
+  filter.append("feComposite")
+    .attr("in", "SourceGraphic");
+
   // draw rings
   for (var i = 0; i < rings.length; i++) {
     grid.append("circle")
@@ -244,7 +257,7 @@ function radar_visualization(config) {
   function legend_transform(quadrant, ring, index=null) {
     var dx = ring < 2 ? 0 : 120;
     var dy = (index == null ? -16 : index * 12);
-    if (ring % 2 == 1) {
+    if (ring % 2 === 1) {
       dy = dy + 36 + segmented[quadrant][ring-1].length * 12;
     }
     return translate(
@@ -293,11 +306,14 @@ function radar_visualization(config) {
           .data(segmented[quadrant][ring])
           .enter()
             .append("text")
-              .attr("class", "legend" + quadrant + ring)
               .attr("transform", function(d, i) { return legend_transform(quadrant, ring, i); })
+              .attr("class", "legend" + quadrant + ring)
+              .attr("id", function(d, i) { return "legendItem" + d.id; })
               .text(function(d, i) { return d.id + ". " + d.label; })
               .style("font-family", "Arial, Helvetica")
-              .style("font-size", "11");
+              .style("font-size", "11")
+              .on("mouseover", function(d) { showBubble(d); highlightLegendItem(d); })
+              .on("mouseout", function(d) { hideBubble(d); unhighlightLegendItem(d); });
       }
     }
   }
@@ -350,53 +366,76 @@ function radar_visualization(config) {
       .style("opacity", 0);
   }
 
+  function highlightLegendItem(d) {
+    var legendItem = document.getElementById("legendItem" + d.id);
+    legendItem.setAttribute("filter", "url(#solid)");
+    legendItem.setAttribute("fill", "white");
+  }
+
+  function unhighlightLegendItem(d) {
+    var legendItem = document.getElementById("legendItem" + d.id);
+    legendItem.removeAttribute("filter");
+    legendItem.removeAttribute("fill");
+  }
+
   // draw blips on radar
   var blips = rink.selectAll(".blip")
     .data(config.entries)
     .enter()
       .append("g")
         .attr("class", "blip")
-        .on("mouseover", showBubble)
-        .on("mouseout", hideBubble);
+        .attr("transform", function(d, i) { return legend_transform(d.quadrant, d.ring, i); })
+        .on("mouseover", function(d) { showBubble(d); highlightLegendItem(d); })
+        .on("mouseout", function(d) { hideBubble(d); unhighlightLegendItem(d); });
 
   // configure each blip
   blips.each(function(d) {
     var blip = d3.select(this);
 
     // blip link
-    if (!config.print_layout && d.active && d.hasOwnProperty("link")) {
+    if (d.hasOwnProperty("link")) {
       blip = blip.append("a")
         .attr("xlink:href", d.link);
     }
 
-    // blip shape
-    if (d.moved > 0) {
-      blip.append("path")
-        .attr("d", "M -11,5 11,5 0,-13 z") // triangle pointing up
-        .style("fill", d.color);
-    } else if (d.moved < 0) {
-      blip.append("path")
-        .attr("d", "M -11,-5 11,-5 0,13 z") // triangle pointing down
-        .style("fill", d.color);
+    
+    // Display blip as icon
+    if (config.display_icons && d.icon) {
+      blip.append("svg:image")
+      .attr('x', -9)
+      .attr('y', -12)
+      .attr('width', 30)
+      .attr('height', 30)
+      .attr("xlink:href", d.icon)
     } else {
-      blip.append("circle")
-        .attr("r", 9)
-        .attr("fill", d.color);
+      // Display blip as shape
+      if (d.moved > 0) {
+        blip.append("path")
+          .attr("d", "M -11,5 11,5 0,-13 z") // triangle pointing up
+          .style("fill", d.color);
+      } else if (d.moved < 0) {
+        blip.append("path")
+          .attr("d", "M -11,-5 11,-5 0,13 z") // triangle pointing down
+          .style("fill", d.color);
+      } else {
+        blip.append("circle")
+          .attr("r", 13)
+          .attr("fill", d.color);
+      }
     }
+    
 
     // blip text
-    if (d.active || config.print_layout) {
-      var blip_text = config.print_layout ? d.id : d.label.match(/[a-z]/i);
-      blip.append("text")
-        .text(blip_text)
-        .attr("y", 3)
-        .attr("text-anchor", "middle")
-        .style("fill", "#fff")
-        .style("font-family", "Arial, Helvetica")
-        .style("font-size", function(d) { return blip_text.length > 2 ? "8" : "9"; })
-        .style("pointer-events", "none")
-        .style("user-select", "none");
-    }
+    var blip_text = d.label;
+    blip.append("text")
+      .text(blip_text)
+      .attr("y", 3)
+      .attr("text-anchor", "middle")
+      .style("fill", "#000")
+      .style("font-family", "Arial, Helvetica")
+      .style("font-size", "12")
+      .style("pointer-events", "none")
+      .style("user-select", "none");
   });
 
   // make sure that blips stay inside their segment
