@@ -5,16 +5,16 @@
         "Techniques",
         "Languages & Frameworks"
     ],
-    "rings": {
-        "1": "Adopt",
-        "2": "Trail",
-        "3": "Assess",
-        "4": "Hold"
-    },
+    "rings": [
+        "Adopt",
+        "Trail",
+        "Assess",
+        "Hold"
+    ],
     "blips": [
         {
             "quadrant": 0,
-            "ring": 1,
+            "ring": 0,
             "label": "BitBucket",
             "link": "#",
             "icon": "https://wac-cdn.atlassian.com/dam/jcr:e75ffb0e-b3ee-40ca-8659-ecb93675a379/Bitbucket@2x-blue.png",
@@ -22,7 +22,7 @@
         },
         {
             "quadrant": 0,
-            "ring": 1,
+            "ring": 0,
             "label": "SonarCloud",
             "link": "#",
             "icon": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR0ETbFy46tBvBu07kDuTJhOHPx8nCwKDTxK0Co1qH1QSfH0pmA&s",
@@ -30,7 +30,7 @@
         },
         {
             "quadrant": 0,
-            "ring": 1,
+            "ring": 0,
             "label": "MongoDB",
             "link": "#",
             "icon": "https://r00t4bl3.com/uploads/mongodb-logo-39d3026cd557c2ff1912112d620b88c7.png",
@@ -38,7 +38,7 @@
         },
         {
             "quadrant": 0,
-            "ring": 2,
+            "ring": 1,
             "label": "AWS Neptune",
             "link": "#",
             "icon": "https://d2908q01vomqb2.cloudfront.net/887309d048beef83ad3eabf2a79a64a389ab1c9f/2019/09/06/Neptune.png",
@@ -46,7 +46,7 @@
         },
         {
             "quadrant": 0,
-            "ring": 1,
+            "ring": 0,
             "label": "PostgreSQL",
             "link": "#",
             "icon": "https://icon-library.net/images/postgres-icon/postgres-icon-27.jpg",
@@ -70,7 +70,7 @@
         },
         {
             "quadrant": 1,
-            "ring": 1,
+            "ring": 0,
             "label": "AWS Cloud",
             "link": "#",
             "icon": "https://www.perl.com/images/deploy-a-static-website-with-aws-s3-and-paws/aws-logo.png",
@@ -78,7 +78,7 @@
         },
         {
             "quadrant": 1,
-            "ring": 1,
+            "ring": 0,
             "label": "Docker",
             "link": "#",
             "icon": "https://cdn.thenewstack.io/media/2014/04/homepage-docker-logo.png",
@@ -86,7 +86,7 @@
         },
         {
             "quadrant": 1,
-            "ring": 2,
+            "ring": 1,
             "label": "Kubernetes",
             "link": "#",
             "icon": "https://www.stratoscale.com/wp-content/uploads/2019/04/Kubernetes-logo.png",
@@ -94,7 +94,7 @@
         },
         {
             "quadrant": 1,
-            "ring": 2,
+            "ring": 1,
             "label": "AWS Fargate",
             "link": "#",
             "icon": "https://miro.medium.com/max/760/1*Hn8e4R6vvOveoyujeLIG8Q.png",
@@ -102,7 +102,7 @@
         },
         {
             "quadrant": 1,
-            "ring": 3,
+            "ring": 2,
             "label": "AWS Lambda",
             "link": "#",
             "icon": "https://cdn-media-1.freecodecamp.org/images/1*JuAJNrCky6mkF4upt0emCg.png",
@@ -110,21 +110,21 @@
         },
         {
             "quadrant": 2,
-            "ring": 1,
+            "ring": 0,
             "label": "Threat Modelling",
             "link": "#",
             "moved": 0
         },
         {
             "quadrant": 2,
-            "ring": 1,
+            "ring": 0,
             "label": "(Micro)Service Architecture",
             "link": "#",
             "moved": 0
         },
         {
             "quadrant": 2,
-            "ring": 1,
+            "ring": 0,
             "label": "Scaled Agile Framework",
             "link": "#",
             "icon": "https://s3.amazonaws.com/production-wordpress-assets/blog/wp-content/uploads/2017/02/08143346/Screen-Shot-2018-08-08-at-3.31.58-PM.png",
@@ -132,29 +132,21 @@
         },
         {
             "quadrant": 1,
-            "ring": 1,
+            "ring": 0,
             "label": "DevOps",
             "link": "#",
             "moved": 0
         },
         {
             "quadrant": 2,
-            "ring": 1,
-            "label": "Scaled Agile Framework",
-            "link": "#",
-            "icon": "https://s3.amazonaws.com/production-wordpress-assets/blog/wp-content/uploads/2017/02/08143346/Screen-Shot-2018-08-08-at-3.31.58-PM.png",
-            "moved": 0
-        },
-        {
-            "quadrant": 2,
-            "ring": 3,
+            "ring": 2,
             "label": "Bug Bounty Program",
             "link": "#",
             "moved": 0
         },
         {
             "quadrant": 3,
-            "ring": 1,
+            "ring": 0,
             "label": "Java",
             "link": "#",
             "icon": "https://dutchitchannel.nl/592976/oracle-java-se-support-roadmap-bijgewerkt.html?field=xBinary167721&width=712&maxheight=260",
@@ -162,7 +154,7 @@
         },
         {
             "quadrant": 3,
-            "ring": 1,
+            "ring": 0,
             "label": "Angular",
             "link": "#",
             "icon": "https://cdn3.iconfinder.com/data/icons/logos-3/250/angular-512.png",
@@ -170,7 +162,7 @@
         },
         {
             "quadrant": 3,
-            "ring": 1,
+            "ring": 0,
             "label": "Vert.x",
             "link": "#",
             "icon": "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c4/Vert.x_Logo.svg/1200px-Vert.x_Logo.svg.png",
@@ -178,7 +170,7 @@
         },
         {
             "quadrant": 3,
-            "ring": 1,
+            "ring": 0,
             "label": "Spring",
             "link": "#",
             "icon": "https://www.pngfind.com/pngs/m/53-535670_spring-framework-logo-spring-boot-hd-png-download.png",
@@ -186,7 +178,7 @@
         },
         {
             "quadrant": 3,
-            "ring": 1,
+            "ring": 0,
             "label": "Typescript",
             "link": "#",
             "icon": "https://miro.medium.com/max/816/1*mn6bOs7s6Qbao15PMNRyOA.png",
@@ -194,7 +186,7 @@
         },
         {
             "quadrant": 3,
-            "ring": 2,
+            "ring": 1,
             "label": "Node.js",
             "link": "#",
             "icon": "https://cdn.pixabay.com/photo/2015/04/23/17/41/node-js-736399_960_720.png",
@@ -218,21 +210,21 @@
         },
         {
             "quadrant": 3,
-            "ring": 1,
+            "ring": 0,
             "label": "OpenTracing",
             "link": "#",
             "moved": 0
         },
         {
             "quadrant": 3,
-            "ring": 1,
+            "ring": 0,
             "label": "OpenAPI",
             "link": "#",
             "moved": 0
         },
         {
             "quadrant": 3,
-            "ring": 1,
+            "ring": 0,
             "label": "Open ID Connect",
             "link": "#",
             "moved": 0

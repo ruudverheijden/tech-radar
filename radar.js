@@ -26,9 +26,9 @@ function createRadar(config) {
   ];
 
   const rings = [
-    { radius: 130 },
-    { radius: 220 },
-    { radius: 310 },
+    { radius: 180 },
+    { radius: 270 },
+    { radius: 360 },
     { radius: 400 }
   ];
 
@@ -218,14 +218,15 @@ function createRadar(config) {
       .style("fill", "none")
       .style("stroke", config.colors.grid)
       .style("stroke-width", 1);
+      
     if (config.print_layout) {
       grid.append("text")
         .text(config.rings[i].name)
-        .attr("y", -rings[i].radius + 62)
+        .attr("y", -rings[i].radius + 35)
         .attr("text-anchor", "middle")
         .style("fill", "#e5e5e5")
         .style("font-family", "Arial, Helvetica")
-        .style("font-size", 42)
+        .style("font-size", 35)
         .style("font-weight", "bold")
         .style("pointer-events", "none")
         .style("user-select", "none");
@@ -382,7 +383,6 @@ function createRadar(config) {
       blip.append("svg:image")
       .attr('x', -9)
       .attr('y', -12)
-      .attr('width', 30)
       .attr('height', 30)
       .attr("xlink:href", d.icon)
     } else {
@@ -404,16 +404,19 @@ function createRadar(config) {
     
 
     // blip text
-    var blip_text = d.label;
-    blip.append("text")
-      .text(blip_text)
-      .attr("y", 3)
-      .attr("text-anchor", "middle")
-      .style("fill", "#000")
-      .style("font-family", "Arial, Helvetica")
-      .style("font-size", "12")
-      .style("pointer-events", "none")
-      .style("user-select", "none");
+    if (!d.icon) {
+      var blip_text = d.label;
+      blip.append("text")
+        .text(blip_text)
+        .attr("y", 3)
+        .attr("text-anchor", "middle")
+        .style("fill", "#000")
+        .style("font-family", "Arial, Helvetica")
+        .style("font-size", "12")
+        .style("pointer-events", "none")
+        .style("user-select", "none");
+    }
+    
   });
 
   // make sure that blips stay inside their segment
@@ -427,7 +430,7 @@ function createRadar(config) {
   d3.forceSimulation()
     .nodes(config.entries)
     .velocityDecay(0.19) // magic number (found by experimentation)
-    .force("collision", d3.forceCollide().radius(12).strength(0.85))
+    .force("collision", d3.forceCollide().radius(30).strength(0.85))
     .on("tick", ticked);
 }
 
