@@ -209,7 +209,7 @@ function createRadar(config) {
   filter.append("feComposite")
     .attr("in", "SourceGraphic");
 
-  // draw rings
+  // Draw rings
   for (var i = 0; i < rings.length; i++) {
     grid.append("circle")
       .attr("cx", 0)
@@ -219,18 +219,18 @@ function createRadar(config) {
       .style("stroke", config.colors.grid)
       .style("stroke-width", 1);
       
-    if (config.print_layout) {
-      grid.append("text")
-        .text(config.rings[i].name)
-        .attr("y", -rings[i].radius + 35)
-        .attr("text-anchor", "middle")
-        .style("fill", "#e5e5e5")
-        .style("font-family", "Arial, Helvetica")
-        .style("font-size", 35)
-        .style("font-weight", "bold")
-        .style("pointer-events", "none")
-        .style("user-select", "none");
-    }
+    // Draw ring label
+    grid.append("text")
+      .text(config.rings[i].name)
+      .attr("y", -rings[i].radius + 35)
+      .attr("text-anchor", "middle")
+      .style("fill", "#e5e5e5")
+      .style("font-family", "Arial, Helvetica")
+      .style("font-size", 35)
+      .style("font-weight", "bold")
+      .style("pointer-events", "none")
+      .style("user-select", "none");
+
   }
 
   function legend_transform(quadrant, ring, index=null) {
