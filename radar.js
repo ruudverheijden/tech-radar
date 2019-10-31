@@ -384,9 +384,24 @@ function createRadar(config) {
 
     // Display blip as icon
     if (config.display_icons && d.icon) {
-      blip.append("svg:image")
-      .attr('height', 30)
-      .attr("xlink:href", d.icon)
+
+      // Programatically get the image dimensions before rendering
+      var img = new Image();
+      img.src = d.icon;
+      img.onload = function() {
+        var new_icon = blip.append("svg:image")
+          .attr("xlink:href", d.icon);
+
+        // Limit icon size to maximum configured height/width and take the smallest for rectangular images
+        if (this.width < this.height) {
+          new_icon.attr('height', config.max_icon_height);
+        } else if (this.width == this.height) {
+          new_icon.attr('width', Math.min(config.max_icon_width, config.max_icon_height));
+        } else {
+          new_icon.attr('width', config.max_icon_width);
+        }
+      }
+      
     } else {
       // Display blip as shape
       if (d.moved > 0) {
