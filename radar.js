@@ -267,6 +267,21 @@ function createRadar(config) {
     .style("font-family", "Arial, Helvetica")
     .style("font-size", "10");
 
+  // Set legend items background color via hack:
+  // background color. Usage `.attr("filter", "url(#solid)")`
+  // SOURCE: https://stackoverflow.com/a/31013492/2609980
+  var defs = grid.append("defs");
+  var filter = defs.append("filter")
+    .attr("x", 0)
+    .attr("y", 0)
+    .attr("width", 1)
+    .attr("height", 1)
+    .attr("id", "solid");
+  filter.append("feFlood")
+    .attr("flood-color", "rgb(0, 0, 0, 0.8)");
+  filter.append("feComposite")
+    .attr("in", "SourceGraphic");
+
   // Draw legend
   var legend = radar.append("g");
   for (var quadrant = 0; quadrant < 4; quadrant++) {
@@ -390,6 +405,8 @@ function createRadar(config) {
       img.src = d.icon;
       img.onload = function() {
         var new_icon = blip.append("svg:image")
+          .attr("x", -config.max_icon_width / 2)
+          .attr("y", -config.max_icon_height / 2)
           .attr("xlink:href", d.icon);
 
         // Limit icon size to maximum configured height/width and take the smallest for almost rectangular images
@@ -446,7 +463,7 @@ function createRadar(config) {
   d3.forceSimulation()
     .nodes(config.entries)
     .velocityDecay(0.19) // magic number (found by experimentation)
-    .force("collision", d3.forceCollide().radius(30).strength(0.85))
+    .force("collision", d3.forceCollide().radius(40).strength(0.85))
     .on("tick", ticked);
 }
 
