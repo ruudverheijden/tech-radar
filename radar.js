@@ -392,11 +392,11 @@ function createRadar(config) {
         var new_icon = blip.append("svg:image")
           .attr("xlink:href", d.icon);
 
-        // Limit icon size to maximum configured height/width and take the smallest for rectangular images
-        if (this.width < this.height) {
-          new_icon.attr('height', config.max_icon_height);
-        } else if (this.width == this.height) {
+        // Limit icon size to maximum configured height/width and take the smallest for almost rectangular images
+        if (Math.abs(1 - (this.width / this.height)) < 0.2 ) {
           new_icon.attr('width', Math.min(config.max_icon_width, config.max_icon_height));
+        } else if (this.width < this.height) {
+          new_icon.attr('height', config.max_icon_height);
         } else {
           new_icon.attr('width', config.max_icon_width);
         }
