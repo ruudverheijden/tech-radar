@@ -127,8 +127,7 @@ function createRadar(config) {
     var point = entry.segment.random();
     entry.x = point.x;
     entry.y = point.y;
-    entry.color = entry.active || config.print_layout ?
-      config.rings[entry.ring].color : config.colors.inactive;
+    entry.color = config.rings[entry.ring].color;
   }
 
   // partition entries according to segments
@@ -160,6 +159,7 @@ function createRadar(config) {
     return "translate(" + x + "," + y + ")";
   }
 
+  // Calculate viewbox of zoomed quadrant
   function viewbox(quadrant) {
     return [
       Math.max(0, quadrants[quadrant].factor_x * 400) - 420,
@@ -169,11 +169,13 @@ function createRadar(config) {
     ].join(" ");
   }
 
+  // Create SVG plain
   var svg = d3.select("svg#" + config.svg_id)
     .style("background-color", config.colors.background)
     .attr("width", config.width)
     .attr("height", config.height);
 
+  // Position radar, either zoomed or centered
   var radar = svg.append("g");
   if ("zoomed_quadrant" in config) {
     svg.attr("viewBox", viewbox(config.zoomed_quadrant));
@@ -181,33 +183,22 @@ function createRadar(config) {
     radar.attr("transform", translate(config.width / 2, config.height / 2));
   }
 
+  // Create a grid group
   var grid = radar.append("g");
 
-  // draw grid lines
+  // Draw radar vertical line
   grid.append("line")
     .attr("x1", 0).attr("y1", -400)
     .attr("x2", 0).attr("y2", 400)
     .style("stroke", config.colors.grid)
     .style("stroke-width", 1);
+  
+    // Draw radar horizontal line
   grid.append("line")
     .attr("x1", -400).attr("y1", 0)
     .attr("x2", 400).attr("y2", 0)
     .style("stroke", config.colors.grid)
     .style("stroke-width", 1);
-
-  // background color. Usage `.attr("filter", "url(#solid)")`
-  // SOURCE: https://stackoverflow.com/a/31013492/2609980
-  var defs = grid.append("defs");
-  var filter = defs.append("filter")
-    .attr("x", 0)
-    .attr("y", 0)
-    .attr("width", 1)
-    .attr("height", 1)
-    .attr("id", "solid");
-  filter.append("feFlood")
-    .attr("flood-color", "rgb(0, 0, 0, 0.8)");
-  filter.append("feComposite")
-    .attr("in", "SourceGraphic");
 
   // Draw rings
   for (var i = 0; i < rings.length; i++) {
@@ -297,11 +288,11 @@ function createRadar(config) {
     }
   }
 
-  // layer for entries
+  // Add group for blips
   var rink = radar.append("g")
     .attr("id", "rink");
 
-  // rollover bubble (on top of everything else)
+  // Create blip bubble (on top of everything else) that can be reused when highlighting a blip
   var bubble = radar.append("g")
     .attr("id", "bubble")
     .attr("x", 0)
@@ -312,52 +303,54 @@ function createRadar(config) {
   bubble.append("rect")
     .attr("rx", 4)
     .attr("ry", 4)
-    .style("fill", "#333");
+    .style("fill", config.colors.bubble);
   bubble.append("text")
     .style("font-family", "sans-serif")
     .style("font-size", "10px")
-    .style("fill", "#fff");
+    .style("fill", config.colors.bubbleText);
   bubble.append("path")
     .attr("d", "M 0,0 10,0 5,8 z")
     .style("fill", "#333");
 
+  // Show the blip bubble
   function showBubble(d) {
-    if (d.active || config.print_layout) {
-      var tooltip = d3.select("#bubble text")
-        .text(d.label);
-      var bbox = tooltip.node().getBBox();
-      d3.select("#bubble")
-        .attr("transform", translate(d.x - bbox.width / 2, d.y - 16))
-        .style("opacity", 0.8);
-      d3.select("#bubble rect")
-        .attr("x", -5)
-        .attr("y", -bbox.height)
-        .attr("width", bbox.width + 10)
-        .attr("height", bbox.height + 4);
-      d3.select("#bubble path")
-        .attr("transform", translate(bbox.width / 2 - 5, 3));
-    }
+    var tooltip = d3.select("#bubble text")
+      .text(d.label);
+    var bbox = tooltip.node().getBBox();
+    d3.select("#bubble")
+      .attr("transform", translate(d.x - bbox.width / 2, d.y - 16))
+      .style("opacity", 0.8);
+    d3.select("#bubble rect")
+      .attr("x", -5)
+      .attr("y", -bbox.height)
+      .attr("width", bbox.width + 10)
+      .attr("height", bbox.height + 4);
+    d3.select("#bubble path")
+      .attr("transform", translate(bbox.width / 2 - 5, 3));
   }
 
+  // Hide the blip bubble
   function hideBubble(d) {
     var bubble = d3.select("#bubble")
       .attr("transform", translate(0,0))
       .style("opacity", 0);
   }
 
+  // Highlight item in legend
   function highlightLegendItem(d) {
     var legendItem = document.getElementById("legendItem" + d.id);
     legendItem.setAttribute("filter", "url(#solid)");
     legendItem.setAttribute("fill", "white");
   }
 
+  // Unhighlight item in legend
   function unhighlightLegendItem(d) {
     var legendItem = document.getElementById("legendItem" + d.id);
     legendItem.removeAttribute("filter");
     legendItem.removeAttribute("fill");
   }
 
-  // draw blips on radar
+  // Draw all blips on radar
   var blips = rink.selectAll(".blip")
     .data(config.entries)
     .enter()
@@ -367,17 +360,16 @@ function createRadar(config) {
         .on("mouseover", function(d) { showBubble(d); highlightLegendItem(d); })
         .on("mouseout", function(d) { hideBubble(d); unhighlightLegendItem(d); });
 
-  // configure each blip
+  // Configure each blip
   blips.each(function(d) {
     var blip = d3.select(this);
 
-    // blip link
+    // Create blip link
     if (d.hasOwnProperty("link")) {
       blip = blip.append("a")
         .attr("xlink:href", d.link);
     }
 
-    
     // Display blip as icon
     if (config.display_icons && d.icon) {
       blip.append("svg:image")
@@ -402,8 +394,7 @@ function createRadar(config) {
       }
     }
     
-
-    // blip text
+    // Draw blip text
     if (!d.icon) {
       var blip_text = d.label;
       blip.append("text")
@@ -419,7 +410,7 @@ function createRadar(config) {
     
   });
 
-  // make sure that blips stay inside their segment
+  // Make sure that blips stay inside their segment
   function ticked() {
     blips.attr("transform", function(d) {
       return translate(d.segment.clipx(d), d.segment.clipy(d));
