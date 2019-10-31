@@ -1,21 +1,9 @@
 // Create the Radar visualisation using D3.js
 function createRadar(config) {
 
-  // custom random number generator, to make random sequence reproducible
-  // source: https://stackoverflow.com/questions/521295
-  var seed = 42;
-  function random() {
-    var x = Math.sin(seed++) * 10000;
-    return x - Math.floor(x);
-  }
-
-  function random_between(min, max) {
-    return min + random() * (max - min);
-  }
-
-  function normal_between(min, max) {
-    return min + (random() + random()) * 0.5 * (max - min);
-  }
+  /*
+   * Defining coordinates and sizing
+   */
 
   // radial_min / radial_max are multiples of PI
   const quadrants = [
@@ -44,6 +32,26 @@ function createRadar(config) {
     { x: -675, y: -310 },
     { x: 450, y: -310 }
   ];
+
+  /*
+   * Utility functions
+   */
+
+  // custom random number generator, to make random sequence reproducible
+  // source: https://stackoverflow.com/questions/521295
+  var seed = 42;
+  function random() {
+    var x = Math.sin(seed++) * 10000;
+    return x - Math.floor(x);
+  }
+
+  function random_between(min, max) {
+    return min + random() * (max - min);
+  }
+
+  function normal_between(min, max) {
+    return min + (random() + random()) * 0.5 * (max - min);
+  }
 
   function polar(cartesian) {
     var x = cartesian.x;
@@ -79,6 +87,10 @@ function createRadar(config) {
       x: bounded_interval(point.x, min.x, max.x),
       y: bounded_interval(point.y, min.y, max.y)
     }
+  }
+
+  function translate(x, y) {
+    return "translate(" + x + "," + y + ")";
   }
 
   function segment(quadrant, ring) {
@@ -120,7 +132,21 @@ function createRadar(config) {
     }
   }
 
-  // position each entry randomly in its segment
+  // Calculate viewbox of zoomed quadrant
+  function viewbox(quadrant) {
+    return [
+      Math.max(0, quadrants[quadrant].factor_x * 400) - 420,
+      Math.max(0, quadrants[quadrant].factor_y * 400) - 420,
+      440,
+      440
+    ].join(" ");
+  }
+
+  /*
+   * Positioning functions
+   */
+
+  // Position each blip randomly in its segment
   for (var i = 0; i < config.entries.length; i++) {
     var entry = config.entries[i];
     entry.segment = segment(entry.quadrant, entry.ring);
@@ -130,7 +156,7 @@ function createRadar(config) {
     entry.color = config.rings[entry.ring].color;
   }
 
-  // partition entries according to segments
+  // Partition entries according to segments
   var segmented = new Array(4);
   for (var quadrant = 0; quadrant < 4; quadrant++) {
     segmented[quadrant] = new Array(4);
@@ -143,7 +169,7 @@ function createRadar(config) {
     segmented[entry.quadrant][entry.ring].push(entry);
   }
 
-  // assign unique sequential id to each entry
+  // Assign unique sequential id to each entry
   var id = 1;
   for (var quadrant of [2,3,1,0]) {
     for (var ring = 0; ring < 4; ring++) {
@@ -155,19 +181,9 @@ function createRadar(config) {
     }
   }
 
-  function translate(x, y) {
-    return "translate(" + x + "," + y + ")";
-  }
-
-  // Calculate viewbox of zoomed quadrant
-  function viewbox(quadrant) {
-    return [
-      Math.max(0, quadrants[quadrant].factor_x * 400) - 420,
-      Math.max(0, quadrants[quadrant].factor_y * 400) - 420,
-      440,
-      440
-    ].join(" ");
-  }
+  /*
+   * Creating and filling the radar
+   */
 
   // Create SVG plain
   var svg = d3.select("svg#" + config.svg_id)
@@ -236,55 +252,51 @@ function createRadar(config) {
     );
   }
 
-  // draw title and legend (only in print layout)
-  if (config.print_layout) {
+  // Draw title
+  radar.append("text")
+    .attr("transform", translate(title_offset.x, title_offset.y))
+    .text(config.title)
+    .style("font-family", "Arial, Helvetica")
+    .style("font-size", "34");
 
-    // title
-    radar.append("text")
-      .attr("transform", translate(title_offset.x, title_offset.y))
-      .text(config.title)
+  // Draw footer
+  radar.append("text")
+    .attr("transform", translate(footer_offset.x, footer_offset.y))
+    .text("▲ moved up     ▼ moved down")
+    .attr("xml:space", "preserve")
+    .style("font-family", "Arial, Helvetica")
+    .style("font-size", "10");
+
+  // Draw legend
+  var legend = radar.append("g");
+  for (var quadrant = 0; quadrant < 4; quadrant++) {
+    legend.append("text")
+      .attr("transform", translate(
+        legend_offset[quadrant].x,
+        legend_offset[quadrant].y - 45
+      ))
+      .text(config.quadrants[quadrant].name)
       .style("font-family", "Arial, Helvetica")
-      .style("font-size", "34");
-
-    // footer
-    radar.append("text")
-      .attr("transform", translate(footer_offset.x, footer_offset.y))
-      .text("▲ moved up     ▼ moved down")
-      .attr("xml:space", "preserve")
-      .style("font-family", "Arial, Helvetica")
-      .style("font-size", "10");
-
-    // legend
-    var legend = radar.append("g");
-    for (var quadrant = 0; quadrant < 4; quadrant++) {
+      .style("font-size", "18");
+    for (var ring = 0; ring < 4; ring++) {
       legend.append("text")
-        .attr("transform", translate(
-          legend_offset[quadrant].x,
-          legend_offset[quadrant].y - 45
-        ))
-        .text(config.quadrants[quadrant].name)
+        .attr("transform", legend_transform(quadrant, ring))
+        .text(config.rings[ring].name)
         .style("font-family", "Arial, Helvetica")
-        .style("font-size", "18");
-      for (var ring = 0; ring < 4; ring++) {
-        legend.append("text")
-          .attr("transform", legend_transform(quadrant, ring))
-          .text(config.rings[ring].name)
-          .style("font-family", "Arial, Helvetica")
-          .style("font-size", "12")
-          .style("font-weight", "bold");
-        legend.selectAll(".legend" + quadrant + ring)
-          .data(segmented[quadrant][ring])
-          .enter()
-            .append("text")
-              .attr("transform", function(d, i) { return legend_transform(quadrant, ring, i); })
-              .attr("class", "legend" + quadrant + ring)
-              .attr("id", function(d, i) { return "legendItem" + d.id; })
-              .text(function(d, i) { return d.id + ". " + d.label; })
-              .style("font-family", "Arial, Helvetica")
-              .style("font-size", "11")
-              .on("mouseover", function(d) { showBubble(d); highlightLegendItem(d); })
-              .on("mouseout", function(d) { hideBubble(d); unhighlightLegendItem(d); });
-      }
+        .style("font-size", "12")
+        .style("font-weight", "bold");
+      legend.selectAll(".legend" + quadrant + ring)
+        .data(segmented[quadrant][ring])
+        .enter()
+          .append("text")
+            .attr("transform", function(d, i) { return legend_transform(quadrant, ring, i); })
+            .attr("class", "legend" + quadrant + ring)
+            .attr("id", function(d, i) { return "legendItem" + d.id; })
+            .text(function(d, i) { return d.id + ". " + d.label; })
+            .style("font-family", "Arial, Helvetica")
+            .style("font-size", "11")
+            .on("mouseover", function(d) { showBubble(d); highlightLegendItem(d); })
+            .on("mouseout", function(d) { hideBubble(d); unhighlightLegendItem(d); });
     }
   }
 
@@ -373,8 +385,6 @@ function createRadar(config) {
     // Display blip as icon
     if (config.display_icons && d.icon) {
       blip.append("svg:image")
-      .attr('x', -9)
-      .attr('y', -12)
       .attr('height', 30)
       .attr("xlink:href", d.icon)
     } else {
